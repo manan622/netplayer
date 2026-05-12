@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getTitle, tmdbImage, type TmdbItem } from "@/services/tmdb";
 
@@ -43,8 +44,13 @@ export function MovieRow({ title, items }: { title: string; items: TmdbItem[] })
 
 function MovieCard({ item }: { item: TmdbItem }) {
   const img = tmdbImage(item.poster_path, "w500");
+  const mediaType = item.mediaType ?? "movie";
   return (
-    <div className="relative shrink-0 w-[140px] md:w-[200px] aspect-[2/3] rounded-md overflow-hidden bg-card transition-transform duration-300 hover:scale-105 hover:z-10 cursor-pointer">
+    <Link
+      to="/$mediaType/$id"
+      params={{ mediaType, id: String(item.id) }}
+      className="relative shrink-0 w-[140px] md:w-[200px] aspect-[2/3] rounded-md overflow-hidden bg-card transition-transform duration-300 hover:scale-105 hover:z-10 cursor-pointer"
+    >
       {img ? (
         <img src={img} alt={getTitle(item)} className="size-full object-cover" loading="lazy" />
       ) : (
@@ -58,6 +64,6 @@ function MovieCard({ item }: { item: TmdbItem }) {
           <p className="text-xs text-foreground/70 mt-1">★ {item.vote_average?.toFixed(1)}</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
