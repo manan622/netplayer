@@ -30,9 +30,9 @@ export function Header() {
           <a href="#" className="hover:text-foreground transition-colors">My List</a>
         </nav>
         <div className="ml-auto flex items-center gap-4">
-          <button className="text-foreground/90 hover:text-foreground" aria-label="Search">
+          <Link to="/search" className="text-foreground/90 hover:text-foreground" aria-label="Search">
             <Search className="size-5" />
-          </button>
+          </Link>
           <button className="text-foreground/90 hover:text-foreground" aria-label="Notifications">
             <Bell className="size-5" />
           </button>
