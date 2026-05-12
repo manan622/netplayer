@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Netplay" },
+      { name: "description", content: "Cursor Magic enhances your web browsing experience with a customizable cursor and interactive elements." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Netplay" },
+      { property: "og:description", content: "Cursor Magic enhances your web browsing experience with a customizable cursor and interactive elements." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Netplay" },
+      { name: "twitter:description", content: "Cursor Magic enhances your web browsing experience with a customizable cursor and interactive elements." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9c5537a9-1791-4793-8092-5a7a82918f48/id-preview-ae465c1a--e520a8bc-4be6-4d99-a37d-b2dd0879c7f3.lovable.app-1778549223448.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9c5537a9-1791-4793-8092-5a7a82918f48/id-preview-ae465c1a--e520a8bc-4be6-4d99-a37d-b2dd0879c7f3.lovable.app-1778549223448.png" },
     ],
     links: [
       {
