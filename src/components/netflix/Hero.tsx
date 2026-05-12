@@ -1,4 +1,5 @@
 import { Play, Info } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { getTitle, tmdbImage, type TmdbItem } from "@/services/tmdb";
 
@@ -24,11 +25,15 @@ export function Hero({ item }: { item: TmdbItem }) {
           {item.overview}
         </p>
         <div className="mt-6 flex gap-3">
-          <Button size="lg" className="bg-white text-black hover:bg-white/90 font-semibold">
-            <Play className="size-5 fill-current" /> Play
+          <Button asChild size="lg" className="bg-white text-black hover:bg-white/90 font-semibold">
+            <Link to="/$mediaType/$id" params={{ mediaType: item.mediaType ?? "movie", id: String(item.id) }}>
+              <Play className="size-5 fill-current" /> Play
+            </Link>
           </Button>
-          <Button size="lg" variant="secondary" className="bg-foreground/20 hover:bg-foreground/30 backdrop-blur font-semibold">
-            <Info className="size-5" /> More Info
+          <Button asChild size="lg" variant="secondary" className="bg-foreground/20 hover:bg-foreground/30 backdrop-blur font-semibold">
+            <Link to="/$mediaType/$id" params={{ mediaType: item.mediaType ?? "movie", id: String(item.id) }}>
+              <Info className="size-5" /> More Info
+            </Link>
           </Button>
         </div>
       </div>
