@@ -11,6 +11,11 @@ import {
   TV_CATEGORIES,
   type TmdbItem,
 } from "@/services/tmdb";
+import {
+  useWatchlist,
+  useContinueWatching,
+  libraryItemToTmdb,
+} from "@/lib/library";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -27,6 +32,8 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const trending = useQuery({ queryKey: ["trending"], queryFn: fetchTrending });
+  const watchlist = useWatchlist();
+  const continueList = useContinueWatching();
 
   const heroItem: TmdbItem | undefined = trending.data?.find((i) => i.backdrop_path) ?? trending.data?.[0];
   const categories = [...MOVIE_CATEGORIES, ...TV_CATEGORIES];
@@ -40,6 +47,12 @@ function Home() {
         <Skeleton className="h-[85vh] min-h-[520px] w-full rounded-none" />
       )}
       <div className="-mt-24 relative z-10 pb-20">
+        {continueList.length > 0 && (
+          <MovieRow title="Continue Watching" items={continueList.map(libraryItemToTmdb)} />
+        )}
+        {watchlist.length > 0 && (
+          <MovieRow title="My List" items={watchlist.map(libraryItemToTmdb)} />
+        )}
         {trending.data && <MovieRow title="Trending Now" items={trending.data} />}
         {categories.map((cat) => (
           <CategoryRow key={cat.title} title={cat.title} cat={cat} />
