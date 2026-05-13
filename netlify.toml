@@ -4,6 +4,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NITRO_PRESET = "netlify"
 
-# TanStack Start's Nitro `netlify` preset emits the SSR function and
-# routing redirects into .netlify/ automatically — no extra config needed.
+# TanStack Start uses Nitro under the hood; NITRO_PRESET tells it to emit
+# a Netlify Function for SSR + the static client bundle in dist/client.
+
