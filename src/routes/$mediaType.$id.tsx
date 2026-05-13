@@ -45,6 +45,7 @@ function DetailPage() {
   const [playOpen, setPlayOpen] = useState(false);
   const [target, setTarget] = useState<PlayTarget | null>(null);
 
+  const data = details.data;
   const watchlist = useWatchlist();
   const inList = !!data && watchlist.some((x) => x.id === showId && x.mediaType === m);
 
@@ -69,7 +70,6 @@ function DetailPage() {
     toggleWatchlist(toLibraryItem({ ...data, mediaType: m }));
   };
 
-  const data = details.data;
   const bg = data?.backdrop_path ? tmdbImage(data.backdrop_path, "original") : "";
   const year = (data?.release_date || data?.first_air_date || "").slice(0, 4);
 
