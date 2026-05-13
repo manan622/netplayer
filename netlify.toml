@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# TanStack Start's Nitro `netlify` preset emits the SSR function and
+# routing redirects into .netlify/ automatically — no extra config needed.
