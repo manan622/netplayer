@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Play, ArrowLeft } from "lucide-react";
+import { Play, ArrowLeft, Plus, Check } from "lucide-react";
+import { toLibraryItem, toggleWatchlist, useWatchlist, pushContinueWatching } from "@/lib/library";
 import { Header } from "@/components/netflix/Header";
 import { MovieRow } from "@/components/netflix/MovieRow";
 import { EpisodeList } from "@/components/netflix/EpisodeList";
@@ -44,16 +45,31 @@ function DetailPage() {
   const [playOpen, setPlayOpen] = useState(false);
   const [target, setTarget] = useState<PlayTarget | null>(null);
 
+  const data = details.data;
+  const watchlist = useWatchlist();
+  const inList = !!data && watchlist.some((x) => x.id === showId && x.mediaType === m);
+
+  const recordContinue = (extra: { season?: number; episode?: number } = {}) => {
+    if (!data) return;
+    pushContinueWatching(toLibraryItem({ ...data, mediaType: m }, extra));
+  };
+
   const playMovie = () => {
     setTarget({ id: showId, mediaType: m });
     setPlayOpen(true);
+    recordContinue();
   };
   const playEpisode = (season: number, episode: number) => {
     setTarget({ id: showId, mediaType: "tv", season, episode });
     setPlayOpen(true);
+    recordContinue({ season, episode });
   };
 
-  const data = details.data;
+  const onToggleList = () => {
+    if (!data) return;
+    toggleWatchlist(toLibraryItem({ ...data, mediaType: m }));
+  };
+
   const bg = data?.backdrop_path ? tmdbImage(data.backdrop_path, "original") : "";
   const year = (data?.release_date || data?.first_air_date || "").slice(0, 4);
 
@@ -96,7 +112,7 @@ function DetailPage() {
               <p className="mt-4 text-sm md:text-base text-foreground/90 max-w-xl line-clamp-4">
                 {data.overview}
               </p>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap gap-3">
                 {m === "movie" && (
                   <Button size="lg" onClick={playMovie} className="bg-white text-black hover:bg-white/90 font-semibold">
                     <Play className="size-5 fill-current" /> Play
@@ -111,6 +127,10 @@ function DetailPage() {
                     <Play className="size-5 fill-current" /> Play S1 · E1
                   </Button>
                 )}
+                <Button size="lg" variant="secondary" onClick={onToggleList}>
+                  {inList ? <Check className="size-5" /> : <Plus className="size-5" />}
+                  {inList ? "In My List" : "My List"}
+                </Button>
               </div>
             </>
           ) : null}
