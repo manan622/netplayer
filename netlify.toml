@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NITRO_PRESET = "netlify"
+
+# TanStack Start uses Nitro under the hood; NITRO_PRESET tells it to emit
+# a Netlify Function for SSR + the static client bundle in dist/client.
+
