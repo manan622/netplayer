@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && node scripts/build-spa-shell.mjs",
+    "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build:netlify": "vite build --config vite.config.netlify.ts && cp dist-spa/client/_shell.html dist-spa/client/index.html && printf \"/*    /index.html   200\n\" > dist-spa/client/_redirects"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
