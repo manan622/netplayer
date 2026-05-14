@@ -8,12 +8,5 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
-    // SPA mode generates a static index.html shell so the app can be hosted
-    // on plain static hosts (e.g. Netlify) in addition to Cloudflare/Lovable.
-    spa: {
-      enabled: true,
-      prerender: { crawlLinks: false },
-    },
-    prerender: { failOnError: false },
   },
 });
