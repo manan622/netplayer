@@ -53,7 +53,11 @@ function DetailPage() {
 
   const data = details.data;
   const watchlist = useWatchlist();
+  const continueList = useContinueWatching();
   const inList = !!data && watchlist.some((x) => x.id === showId && x.mediaType === m);
+  const resume = continueList.find((x) => x.id === showId && x.mediaType === m);
+  const resumeSeason = resume?.season;
+  const resumeEpisode = resume?.episode;
 
   const recordContinue = (extra: { season?: number; episode?: number } = {}) => {
     if (!data) return;
