@@ -1,8 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Play, ArrowLeft, Plus, Check } from "lucide-react";
-import { toLibraryItem, toggleWatchlist, useWatchlist, pushContinueWatching } from "@/lib/library";
+import { Play, ArrowLeft, Plus, Check, RotateCcw } from "lucide-react";
+import {
+  toLibraryItem,
+  toggleWatchlist,
+  useWatchlist,
+  pushContinueWatching,
+  useContinueWatching,
+} from "@/lib/library";
 import { Header } from "@/components/netflix/Header";
 import { MovieRow } from "@/components/netflix/MovieRow";
 import { EpisodeList } from "@/components/netflix/EpisodeList";
@@ -47,7 +53,11 @@ function DetailPage() {
 
   const data = details.data;
   const watchlist = useWatchlist();
+  const continueList = useContinueWatching();
   const inList = !!data && watchlist.some((x) => x.id === showId && x.mediaType === m);
+  const resume = continueList.find((x) => x.id === showId && x.mediaType === m);
+  const resumeSeason = resume?.season;
+  const resumeEpisode = resume?.episode;
 
   const recordContinue = (extra: { season?: number; episode?: number } = {}) => {
     if (!data) return;
@@ -76,8 +86,15 @@ function DetailPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <section className="relative w-full h-[70vh] min-h-[420px] overflow-hidden">
-        {bg && <img src={bg} alt="" className="absolute inset-0 size-full object-cover" />}
+      <section className="relative w-full h-[70vh] min-h-[420px] overflow-hidden bg-card">
+        {bg && (
+          <img
+            src={bg}
+            alt=""
+            className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500"
+            onLoad={(e) => e.currentTarget.classList.replace("opacity-0", "opacity-100")}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
         <Link
@@ -119,13 +136,35 @@ function DetailPage() {
                   </Button>
                 )}
                 {m === "tv" && (
-                  <Button
-                    size="lg"
-                    onClick={() => playEpisode(1, 1)}
-                    className="bg-white text-black hover:bg-white/90 font-semibold"
-                  >
-                    <Play className="size-5 fill-current" /> Play S1 · E1
-                  </Button>
+                  <>
+                    {resumeSeason && resumeEpisode ? (
+                      <>
+                        <Button
+                          size="lg"
+                          onClick={() => playEpisode(resumeSeason, resumeEpisode)}
+                          className="bg-white text-black hover:bg-white/90 font-semibold"
+                        >
+                          <RotateCcw className="size-5" /> Resume S{resumeSeason} · E{resumeEpisode}
+                        </Button>
+                        <Button
+                          size="lg"
+                          variant="secondary"
+                          onClick={() => playEpisode(1, 1)}
+                          className="font-semibold"
+                        >
+                          <Play className="size-5 fill-current" /> Start Over
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        size="lg"
+                        onClick={() => playEpisode(1, 1)}
+                        className="bg-white text-black hover:bg-white/90 font-semibold"
+                      >
+                        <Play className="size-5 fill-current" /> Play S1 · E1
+                      </Button>
+                    )}
+                  </>
                 )}
                 <Button size="lg" variant="secondary" onClick={onToggleList}>
                   {inList ? <Check className="size-5" /> : <Plus className="size-5" />}
@@ -138,7 +177,13 @@ function DetailPage() {
       </section>
 
       {m === "tv" && data && (
-        <EpisodeList showId={showId} totalSeasons={data.number_of_seasons ?? 1} onPlay={playEpisode} />
+        <EpisodeList
+          showId={showId}
+          totalSeasons={data.number_of_seasons ?? 1}
+          onPlay={playEpisode}
+          initialSeason={resumeSeason}
+          highlightEpisode={resumeEpisode}
+        />
       )}
 
       <div className="pb-20">

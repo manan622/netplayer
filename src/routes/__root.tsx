@@ -4,11 +4,13 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { RouteProgress } from "@/components/netflix/RouteProgress";
 
 function NotFoundComponent() {
   return (
@@ -118,10 +120,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <RouteProgress />
+      <div key={pathname} className="animate-page-in">
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }
