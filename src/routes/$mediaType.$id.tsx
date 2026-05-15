@@ -136,13 +136,35 @@ function DetailPage() {
                   </Button>
                 )}
                 {m === "tv" && (
-                  <Button
-                    size="lg"
-                    onClick={() => playEpisode(1, 1)}
-                    className="bg-white text-black hover:bg-white/90 font-semibold"
-                  >
-                    <Play className="size-5 fill-current" /> Play S1 · E1
-                  </Button>
+                  <>
+                    {resumeSeason && resumeEpisode ? (
+                      <>
+                        <Button
+                          size="lg"
+                          onClick={() => playEpisode(resumeSeason, resumeEpisode)}
+                          className="bg-white text-black hover:bg-white/90 font-semibold"
+                        >
+                          <RotateCcw className="size-5" /> Resume S{resumeSeason} · E{resumeEpisode}
+                        </Button>
+                        <Button
+                          size="lg"
+                          variant="secondary"
+                          onClick={() => playEpisode(1, 1)}
+                          className="font-semibold"
+                        >
+                          <Play className="size-5 fill-current" /> Start Over
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        size="lg"
+                        onClick={() => playEpisode(1, 1)}
+                        className="bg-white text-black hover:bg-white/90 font-semibold"
+                      >
+                        <Play className="size-5 fill-current" /> Play S1 · E1
+                      </Button>
+                    )}
+                  </>
                 )}
                 <Button size="lg" variant="secondary" onClick={onToggleList}>
                   {inList ? <Check className="size-5" /> : <Plus className="size-5" />}
@@ -155,7 +177,13 @@ function DetailPage() {
       </section>
 
       {m === "tv" && data && (
-        <EpisodeList showId={showId} totalSeasons={data.number_of_seasons ?? 1} onPlay={playEpisode} />
+        <EpisodeList
+          showId={showId}
+          totalSeasons={data.number_of_seasons ?? 1}
+          onPlay={playEpisode}
+          initialSeason={resumeSeason}
+          highlightEpisode={resumeEpisode}
+        />
       )}
 
       <div className="pb-20">
