@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { NotificationsButton } from "./NotificationsButton";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -33,9 +34,7 @@ export function Header() {
           <Link to="/search" className="text-foreground/90 hover:text-foreground" aria-label="Search">
             <Search className="size-5" />
           </Link>
-          <button className="text-foreground/90 hover:text-foreground" aria-label="Notifications">
-            <Bell className="size-5" />
-          </button>
+          <NotificationsButton />
           <div className="size-8 rounded bg-primary/80" aria-label="Profile" />
         </div>
       </div>
