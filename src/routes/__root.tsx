@@ -120,11 +120,12 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <QueryClientProvider client={queryClient}>
       <RouteProgress />
-      <div key={Route.useMatch().id} className="animate-page-in">
+      <div key={pathname} className="animate-page-in">
         <Outlet />
       </div>
     </QueryClientProvider>
