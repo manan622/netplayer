@@ -1,14 +1,15 @@
 import { Play, Info } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { SmoothImage } from "./SmoothImage";
 import { getTitle, tmdbImage, type TmdbItem } from "@/services/tmdb";
 
 export function Hero({ item }: { item: TmdbItem }) {
   const bg = tmdbImage(item.backdrop_path, "original");
   return (
-    <section className="relative h-[85vh] min-h-[520px] w-full overflow-hidden">
+    <section className="relative h-[85vh] min-h-[520px] w-full overflow-hidden bg-card">
       {bg && (
-        <img
+        <SmoothImage
           src={bg}
           alt={getTitle(item)}
           className="absolute inset-0 size-full object-cover"
