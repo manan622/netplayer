@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { RouteProgress } from "@/components/netflix/RouteProgress";
 
 function NotFoundComponent() {
   return (
@@ -121,7 +122,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <RouteProgress />
+      <div key={Route.useMatch().id} className="animate-page-in">
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }
