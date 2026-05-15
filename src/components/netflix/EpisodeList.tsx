@@ -1,25 +1,40 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Play } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Play, RotateCcw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchSeason, tmdbImage } from "@/services/tmdb";
+import { cn } from "@/lib/utils";
 
 export function EpisodeList({
   showId,
   totalSeasons,
   onPlay,
+  initialSeason,
+  highlightEpisode,
 }: {
   showId: number;
   totalSeasons: number;
   onPlay: (season: number, episode: number) => void;
+  initialSeason?: number;
+  highlightEpisode?: number;
 }) {
-  const [season, setSeason] = useState(1);
+  const [season, setSeason] = useState(initialSeason ?? 1);
+  useEffect(() => {
+    if (initialSeason) setSeason(initialSeason);
+  }, [initialSeason]);
   const { data, isLoading } = useQuery({
     queryKey: ["season", showId, season],
     queryFn: () => fetchSeason(showId, season),
   });
+  const highlightRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [data, highlightEpisode]);
 
   const seasons = Array.from({ length: Math.max(1, totalSeasons) }, (_, i) => i + 1);
+
 
   return (
     <section className="px-4 md:px-12 py-8">
