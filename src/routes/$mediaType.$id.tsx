@@ -86,8 +86,15 @@ function DetailPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <section className="relative w-full h-[70vh] min-h-[420px] overflow-hidden">
-        {bg && <img src={bg} alt="" className="absolute inset-0 size-full object-cover" />}
+      <section className="relative w-full h-[70vh] min-h-[420px] overflow-hidden bg-card">
+        {bg && (
+          <img
+            src={bg}
+            alt=""
+            className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500"
+            onLoad={(e) => e.currentTarget.classList.replace("opacity-0", "opacity-100")}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent" />
         <Link
