@@ -57,36 +57,52 @@ export function EpisodeList({
           Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 w-full" />
           ))}
-        {data?.episodes.map((ep) => (
-          <button
-            key={ep.id}
-            onClick={() => onPlay(season, ep.episode_number)}
-            className="group flex gap-4 text-left p-2 rounded-md hover:bg-secondary/50 transition-colors"
-          >
-            <div className="relative shrink-0 w-40 md:w-56 aspect-video rounded overflow-hidden bg-card">
-              {ep.still_path ? (
-                <img
-                  src={tmdbImage(ep.still_path, "w300")}
-                  alt={ep.name}
-                  className="size-full object-cover"
-                  loading="lazy"
-                />
-              ) : null}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Play className="size-10 fill-white" />
-              </div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold">
-                {ep.episode_number}. {ep.name}
-              </p>
-              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{ep.overview}</p>
-              {ep.air_date && (
-                <p className="text-xs text-muted-foreground mt-1">{ep.air_date}</p>
+        {data?.episodes.map((ep) => {
+          const isResume = highlightEpisode === ep.episode_number && season === (initialSeason ?? season);
+          return (
+            <button
+              key={ep.id}
+              ref={isResume ? highlightRef : undefined}
+              onClick={() => onPlay(season, ep.episode_number)}
+              className={cn(
+                "group flex gap-4 text-left p-2 rounded-md transition-colors",
+                isResume
+                  ? "bg-primary/15 ring-1 ring-primary/40 hover:bg-primary/20"
+                  : "hover:bg-secondary/50",
               )}
-            </div>
-          </button>
-        ))}
+            >
+              <div className="relative shrink-0 w-40 md:w-56 aspect-video rounded overflow-hidden bg-card">
+                {ep.still_path ? (
+                  <img
+                    src={tmdbImage(ep.still_path, "w300")}
+                    alt={ep.name}
+                    className="size-full object-cover"
+                    loading="lazy"
+                  />
+                ) : null}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  {isResume ? <RotateCcw className="size-10" /> : <Play className="size-10 fill-white" />}
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold">
+                    {ep.episode_number}. {ep.name}
+                  </p>
+                  {isResume && (
+                    <span className="text-[10px] uppercase tracking-wide font-bold px-1.5 py-0.5 rounded bg-primary text-primary-foreground">
+                      Continue
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{ep.overview}</p>
+                {ep.air_date && (
+                  <p className="text-xs text-muted-foreground mt-1">{ep.air_date}</p>
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
