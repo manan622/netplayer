@@ -1,8 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Play, ArrowLeft, Plus, Check } from "lucide-react";
-import { toLibraryItem, toggleWatchlist, useWatchlist, pushContinueWatching } from "@/lib/library";
+import { Play, ArrowLeft, Plus, Check, RotateCcw } from "lucide-react";
+import {
+  toLibraryItem,
+  toggleWatchlist,
+  useWatchlist,
+  pushContinueWatching,
+  useContinueWatching,
+} from "@/lib/library";
 import { Header } from "@/components/netflix/Header";
 import { MovieRow } from "@/components/netflix/MovieRow";
 import { EpisodeList } from "@/components/netflix/EpisodeList";
