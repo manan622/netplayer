@@ -147,7 +147,7 @@ export interface PlayTarget {
   episode?: number;
 }
 
-export function getVideoUrl(t: PlayTarget, sourceId: string): string {
+export function getVideoUrl(t: PlayTarget, sourceId: string, progress?: number): string {
   const api = API_SOURCES.find((s) => s.id === sourceId) ?? API_SOURCES[0];
   if (t.mediaType === "tv") {
     const s = t.season ?? 1;
