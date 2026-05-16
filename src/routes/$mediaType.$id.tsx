@@ -76,6 +76,42 @@ function DetailPage() {
     recordContinue({ season, episode });
   };
 
+  // Episode count for the currently-playing season (for next/prev navigation)
+  const currentSeasonQ = useQuery({
+    queryKey: ["season", showId, target?.season],
+    queryFn: () => fetchSeason(showId, target!.season!),
+    enabled: !!target && m === "tv" && !!target.season,
+  });
+  const epCount = currentSeasonQ.data?.episodes.length ?? 0;
+  const totalSeasons = data?.number_of_seasons ?? 1;
+
+  const playNext = () => {
+    if (!target?.season || !target?.episode) return;
+    if (epCount && target.episode < epCount) playEpisode(target.season, target.episode + 1);
+    else if (target.season < totalSeasons) playEpisode(target.season + 1, 1);
+  };
+  const playPrev = () => {
+    if (!target?.season || !target?.episode) return;
+    if (target.episode > 1) playEpisode(target.season, target.episode - 1);
+    else if (target.season > 1) playEpisode(target.season - 1, 1);
+  };
+  const canNext =
+    !!target?.season &&
+    !!target?.episode &&
+    ((epCount > 0 && target.episode < epCount) || target.season < totalSeasons);
+  const canPrev = !!target?.season && !!target?.episode && (target.episode > 1 || target.season > 1);
+
+  // Resume progress for the currently selected target
+  const resumeProgress =
+    resume &&
+    target &&
+    resume.id === target.id &&
+    resume.mediaType === target.mediaType &&
+    resume.season === target.season &&
+    resume.episode === target.episode
+      ? resume.progress
+      : undefined;
+
   const onToggleList = () => {
     if (!data) return;
     toggleWatchlist(toLibraryItem({ ...data, mediaType: m }));
