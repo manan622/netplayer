@@ -22,6 +22,27 @@ export function PlayerDialog({
     if (open) setLoading(true);
   }, [open, sourceId, target?.id, target?.season, target?.episode]);
 
+  // Detect if we're inside Lovable's editor (sandboxed parent frame).
+  // If so, auto-open the player in a new tab to bypass the parent sandbox.
+  useEffect(() => {
+    if (!open || !target) return;
+    let sandboxed = false;
+    try {
+      sandboxed = window.self !== window.top;
+      // Trying to read parent.location throws if cross-origin/sandboxed
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      window.top?.location.href;
+    } catch {
+      sandboxed = true;
+    }
+    if (sandboxed) {
+      const u = getVideoUrl(target, sourceId);
+      window.open(u, "_blank", "noopener,noreferrer");
+      onOpenChange(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, target?.id, target?.season, target?.episode]);
+
   if (!target) return null;
   const url = getVideoUrl(target, sourceId);
 
