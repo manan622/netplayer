@@ -16,6 +16,8 @@ export interface LibraryItem {
   // continue-watching only:
   season?: number;
   episode?: number;
+  progress?: number; // seconds watched
+  duration?: number; // total seconds
 }
 
 const read = <T,>(key: string): T[] => {
@@ -76,6 +78,34 @@ export function pushContinueWatching(item: LibraryItem) {
 export function removeContinueWatching(id: number, mediaType: MediaType) {
   const next = getContinueWatching().filter((x) => !(x.id === id && x.mediaType === mediaType));
   write(CONTINUE_KEY, next);
+}
+
+export function updateContinueProgress(
+  match: { id: number; mediaType: MediaType; season?: number; episode?: number },
+  progress: number,
+  duration?: number,
+) {
+  const list = getContinueWatching();
+  const idx = list.findIndex((x) => x.id === match.id && x.mediaType === match.mediaType);
+  if (idx === -1) return;
+  const cur = list[idx];
+  // Only update if it's the same episode we're tracking
+  if (cur.season !== match.season || cur.episode !== match.episode) return;
+  const finished = duration && progress / duration > 0.95;
+  const updated: LibraryItem = {
+    ...cur,
+    progress: finished ? 0 : Math.floor(progress),
+    duration: duration ? Math.floor(duration) : cur.duration,
+  };
+  const next = [updated, ...list.filter((_, i) => i !== idx)];
+  write(CONTINUE_KEY, next);
+}
+
+export function getContinueEntry(match: {
+  id: number;
+  mediaType: MediaType;
+}) {
+  return getContinueWatching().find((x) => x.id === match.id && x.mediaType === match.mediaType);
 }
 
 function useLibraryList(key: string, getter: () => LibraryItem[]) {
