@@ -80,6 +80,47 @@ export function removeContinueWatching(id: number, mediaType: MediaType) {
   write(CONTINUE_KEY, next);
 }
 
+export function updateContinueProgress(
+  match: { id: number; mediaType: MediaType; season?: number; episode?: number },
+  progress: number,
+  duration?: number,
+) {
+  const list = getContinueWatching();
+  const idx = list.findIndex(
+    (x) =>
+      x.id === match.id &&
+      x.mediaType === match.mediaType &&
+      x.season === match.season &&
+      x.episode === match.episode,
+  );
+  if (idx === -1) return;
+  const cur = list[idx];
+  // Reset when finished (>95%)
+  const finished = duration && progress / duration > 0.95;
+  const updated: LibraryItem = {
+    ...cur,
+    progress: finished ? 0 : Math.floor(progress),
+    duration: duration ? Math.floor(duration) : cur.duration,
+  };
+  const next = [updated, ...list.filter((_, i) => i !== idx)];
+  write(CONTINUE_KEY, next);
+}
+
+export function getContinueEntry(match: {
+  id: number;
+  mediaType: MediaType;
+  season?: number;
+  episode?: number;
+}) {
+  return getContinueWatching().find(
+    (x) =>
+      x.id === match.id &&
+      x.mediaType === match.mediaType &&
+      x.season === match.season &&
+      x.episode === match.episode,
+  );
+}
+
 function useLibraryList(key: string, getter: () => LibraryItem[]) {
   const [list, setList] = useState<LibraryItem[]>([]);
   const refresh = useCallback(() => setList(getter()), [getter]);
