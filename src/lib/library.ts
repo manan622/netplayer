@@ -16,6 +16,8 @@ export interface LibraryItem {
   // continue-watching only:
   season?: number;
   episode?: number;
+  progress?: number; // seconds watched
+  duration?: number; // total seconds
 }
 
 const read = <T,>(key: string): T[] => {
