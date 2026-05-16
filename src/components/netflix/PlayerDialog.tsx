@@ -52,7 +52,6 @@ export function PlayerDialog({
             referrerPolicy="origin"
             onLoad={() => setLoading(false)}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-presentation allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
             allowFullScreen
             className="size-full border-0"
           />
