@@ -162,16 +162,24 @@ export function getVideoUrl(t: PlayTarget, sourceId: string, progress?: number):
       return `${api.url}tv/${t.id}&s=${s}&e=${e}&autoPlay=true`;
     }
     if (sourceId === "videasy") {
-      return `${api.url}/tv/${t.id}/${s}/${e}?nextEpisode=true&autoplayNextEpisode=true&episodeSelector=true&color=E50914&autoPlay=true`;
+      const p = progress && progress > 5 ? `&progress=${Math.floor(progress)}` : "";
+      return `${api.url}/tv/${t.id}/${s}/${e}?nextEpisode=true&autoplayNextEpisode=true&episodeSelector=true&color=E50914&autoPlay=true${p}`;
     }
     if (sourceId === "vidfast") {
-      return `${api.url}/tv/${t.id}/${s}/${e}?nextButton=true&autoNext=true&autoPlay=true`;
+      const p = progress && progress > 5 ? `&startAt=${Math.floor(progress)}` : "";
+      return `${api.url}/tv/${t.id}/${s}/${e}?nextButton=true&autoNext=true&autoPlay=true${p}`;
     }
     return `${api.url}/tv/${t.id}-${s}-${e}?autoPlay=true`;
   }
   if (sourceId === "multiembed") return `${api.url}/directstream.php?video_id=${t.id}&tmdb=1&autoPlay=true`;
   if (sourceId === "2embed") return `${api.url}/${t.id}?autoPlay=true`;
-  if (sourceId === "videasy") return `${api.url}/movie/${t.id}?color=E50914&autoPlay=true`;
-  if (sourceId === "vidfast") return `${api.url}/movie/${t.id}?autoPlay=true`;
+  if (sourceId === "videasy") {
+    const p = progress && progress > 5 ? `&progress=${Math.floor(progress)}` : "";
+    return `${api.url}/movie/${t.id}?color=E50914&autoPlay=true${p}`;
+  }
+  if (sourceId === "vidfast") {
+    const p = progress && progress > 5 ? `&startAt=${Math.floor(progress)}` : "";
+    return `${api.url}/movie/${t.id}?autoPlay=true${p}`;
+  }
   return `${api.url}/movie/${t.id}?autoPlay=true`;
 }
