@@ -227,7 +227,14 @@ function DetailPage() {
         {recs.data && recs.data.length > 0 && <MovieRow title="More Like This" items={recs.data} />}
       </div>
 
-      <PlayerDialog open={playOpen} onOpenChange={setPlayOpen} target={target} />
+      <PlayerDialog
+        open={playOpen}
+        onOpenChange={setPlayOpen}
+        target={target}
+        resumeProgress={resumeProgress}
+        onPrev={canPrev ? playPrev : undefined}
+        onNext={canNext ? playNext : undefined}
+      />
     </div>
   );
 }
