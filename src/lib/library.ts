@@ -86,16 +86,11 @@ export function updateContinueProgress(
   duration?: number,
 ) {
   const list = getContinueWatching();
-  const idx = list.findIndex(
-    (x) =>
-      x.id === match.id &&
-      x.mediaType === match.mediaType &&
-      x.season === match.season &&
-      x.episode === match.episode,
-  );
+  const idx = list.findIndex((x) => x.id === match.id && x.mediaType === match.mediaType);
   if (idx === -1) return;
   const cur = list[idx];
-  // Reset when finished (>95%)
+  // Only update if it's the same episode we're tracking
+  if (cur.season !== match.season || cur.episode !== match.episode) return;
   const finished = duration && progress / duration > 0.95;
   const updated: LibraryItem = {
     ...cur,
@@ -109,16 +104,8 @@ export function updateContinueProgress(
 export function getContinueEntry(match: {
   id: number;
   mediaType: MediaType;
-  season?: number;
-  episode?: number;
 }) {
-  return getContinueWatching().find(
-    (x) =>
-      x.id === match.id &&
-      x.mediaType === match.mediaType &&
-      x.season === match.season &&
-      x.episode === match.episode,
-  );
+  return getContinueWatching().find((x) => x.id === match.id && x.mediaType === match.mediaType);
 }
 
 function useLibraryList(key: string, getter: () => LibraryItem[]) {
