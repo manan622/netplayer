@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   fetchDetails,
   fetchRecommendations,
+  fetchSeason,
   getTitle,
   tmdbImage,
   type MediaType,
