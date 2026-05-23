@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Header } from "@/components/netflix/Header";
 import { Hero } from "@/components/netflix/Hero";
 import { MovieRow } from "@/components/netflix/MovieRow";
@@ -10,6 +10,7 @@ import {
   MOVIE_CATEGORIES,
   TV_CATEGORIES,
   type TmdbItem,
+  type TmdbPage,
 } from "@/services/tmdb";
 import {
   useWatchlist,
@@ -31,11 +32,18 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const trending = useQuery({ queryKey: ["trending"], queryFn: fetchTrending });
+  const trending = useInfiniteQuery<TmdbPage, Error>({
+    queryKey: ["trending"],
+    queryFn: ({ pageParam }: any) => fetchTrending((pageParam as number) ?? 1),
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
+  });
   const watchlist = useWatchlist();
   const continueList = useContinueWatching();
 
-  const heroItem: TmdbItem | undefined = trending.data?.find((i) => i.backdrop_path) ?? trending.data?.[0];
+  const trendingItems = trending.data?.pages.flatMap((page) => page.results) ?? [];
+  const heroItem: TmdbItem | undefined = trendingItems.find((i) => i.backdrop_path) ?? trendingItems[0];
   const categories = [...MOVIE_CATEGORIES, ...TV_CATEGORIES];
 
   return (
@@ -50,10 +58,15 @@ function Home() {
         {continueList.length > 0 && (
           <MovieRow title="Continue Watching" items={continueList.map(libraryItemToTmdb)} />
         )}
-        {watchlist.length > 0 && (
-          <MovieRow title="My List" items={watchlist.map(libraryItemToTmdb)} />
+        {trendingItems.length > 0 && (
+          <MovieRow
+            title="Trending Now"
+            items={trendingItems}
+            onNearEnd={trending.fetchNextPage}
+            hasMore={Boolean(trending.hasNextPage)}
+            isLoadingMore={trending.isFetchingNextPage}
+          />
         )}
-        {trending.data && <MovieRow title="Trending Now" items={trending.data} />}
         {categories.map((cat) => (
           <CategoryRow key={cat.title} title={cat.title} cat={cat} />
         ))}
@@ -63,11 +76,16 @@ function Home() {
 }
 
 function CategoryRow({ title, cat }: { title: string; cat: Parameters<typeof fetchCategory>[0] }) {
-  const { data } = useQuery({
+  const categoryQuery = useInfiniteQuery<TmdbPage, Error>({
     queryKey: ["category", cat.endpoint],
-    queryFn: () => fetchCategory(cat),
+    queryFn: ({ pageParam }: any) => fetchCategory(cat, (pageParam as number) ?? 1),
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
   });
-  if (!data) {
+  const isLoading = categoryQuery.isLoading;
+  const data = categoryQuery.data?.pages.flatMap((page) => page.results) ?? [];
+  if (isLoading) {
     return (
       <section className="py-6">
         <h2 className="px-4 md:px-12 mb-3 text-xl md:text-2xl font-bold">{title}</h2>
@@ -79,5 +97,13 @@ function CategoryRow({ title, cat }: { title: string; cat: Parameters<typeof fet
       </section>
     );
   }
-  return <MovieRow title={title} items={data} />;
+  return (
+    <MovieRow
+      title={title}
+      items={data}
+      onNearEnd={categoryQuery.fetchNextPage}
+      hasMore={Boolean(categoryQuery.hasNextPage)}
+      isLoadingMore={categoryQuery.isFetchingNextPage}
+    />
+  );
 }

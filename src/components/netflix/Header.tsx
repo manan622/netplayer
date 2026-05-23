@@ -28,7 +28,7 @@ export function Header() {
           <a href="#" className="hover:text-foreground transition-colors">TV Shows</a>
           <a href="#" className="hover:text-foreground transition-colors">Movies</a>
           <a href="#" className="hover:text-foreground transition-colors">New & Popular</a>
-          <a href="#" className="hover:text-foreground transition-colors">My List</a>
+          <Link to="/my-list" className="hover:text-foreground transition-colors">My List</Link>
         </nav>
         <div className="ml-auto flex items-center gap-4">
           <Link to="/search" className="text-foreground/90 hover:text-foreground" aria-label="Search">

@@ -20,6 +20,12 @@ export interface TmdbItem {
   runtime?: number;
 }
 
+export interface TmdbPage {
+  results: TmdbItem[];
+  page: number;
+  total_pages: number;
+}
+
 export interface TmdbDetails extends TmdbItem {
   genres?: { id: number; name: string }[];
   number_of_seasons?: number;
@@ -61,12 +67,18 @@ export const tmdbImage = (
 
 export const getTitle = (item: TmdbItem) => item.title || item.name || "Untitled";
 
-export async function fetchTrending(): Promise<TmdbItem[]> {
-  const data = await j(`${TMDB_BASE_URL}/trending/all/week?api_key=${TMDB_API_KEY}&language=en-US`);
-  return (data.results as TmdbItem[]).map((r) => ({
-    ...r,
-    mediaType: (r as { media_type?: MediaType }).media_type ?? "movie",
-  }));
+export async function fetchTrending(page = 1): Promise<TmdbPage> {
+  const data = await j(
+    `${TMDB_BASE_URL}/trending/all/week?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`,
+  );
+  return {
+    page: data.page,
+    total_pages: data.total_pages,
+    results: (data.results as TmdbItem[]).map((r) => ({
+      ...r,
+      mediaType: (r as { media_type?: MediaType }).media_type ?? "movie",
+    })),
+  };
 }
 
 export interface Category {
@@ -89,9 +101,15 @@ export const TV_CATEGORIES: Category[] = [
   { title: "Airing Today", endpoint: "/tv/airing_today", mediaType: "tv" },
 ];
 
-export async function fetchCategory(cat: Category): Promise<TmdbItem[]> {
-  const data = await j(`${TMDB_BASE_URL}${cat.endpoint}?api_key=${TMDB_API_KEY}&language=en-US&page=1`);
-  return (data.results as TmdbItem[]).map((r) => ({ ...r, mediaType: cat.mediaType }));
+export async function fetchCategory(cat: Category, page = 1): Promise<TmdbPage> {
+  const data = await j(
+    `${TMDB_BASE_URL}${cat.endpoint}?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`,
+  );
+  return {
+    page: data.page,
+    total_pages: data.total_pages,
+    results: (data.results as TmdbItem[]).map((r) => ({ ...r, mediaType: cat.mediaType })),
+  };
 }
 
 export async function fetchDetails(mediaType: MediaType, id: number): Promise<TmdbDetails> {
