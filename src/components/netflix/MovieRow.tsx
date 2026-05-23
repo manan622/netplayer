@@ -115,9 +115,9 @@ export function MovieRow({
           )}
         </div>
 
-        {isLoadingMore && hasMore && (
+        {/* {isLoadingMore && hasMore && (
           <div className="mt-3 px-4 md:px-12 text-sm text-muted-foreground">Loading more titles…</div>
-        )}
+        )} */}
 
         <button onClick={() => scroll(1)} aria-label="Scroll right"
           className="absolute right-0 top-0 bottom-0 z-10 w-12 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
