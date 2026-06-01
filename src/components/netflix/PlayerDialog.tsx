@@ -1,9 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink, Maximize2, Loader2, SkipBack, SkipForward } from "lucide-react";
+import {
+  ExternalLink,
+  Maximize2,
+  SkipBack,
+  SkipForward,
+  Settings2,
+  Check,
+  X,
+  Play,
+} from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { API_SOURCES, getVideoUrl, type PlayTarget } from "@/services/tmdb";
 import { updateContinueProgress } from "@/lib/library";
+import { cn } from "@/lib/utils";
 
 const fmtTime = (s: number) => {
   if (!s || s < 0) return "0:00";
@@ -17,6 +27,7 @@ export function PlayerDialog({
   open,
   onOpenChange,
   target,
+  title,
   resumeProgress,
   onPrev,
   onNext,
@@ -24,6 +35,7 @@ export function PlayerDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   target: PlayTarget | null;
+  title?: string;
   resumeProgress?: number;
   onPrev?: () => void;
   onNext?: () => void;
@@ -65,13 +77,11 @@ export function PlayerDialog({
       let currentTime: number | undefined;
       let duration: number | undefined;
       const obj = d as Record<string, unknown>;
-      // Videasy
       if (obj.type === "PLAYER_EVENT" && obj.data && typeof obj.data === "object") {
         const dd = obj.data as Record<string, unknown>;
         if (typeof dd.currentTime === "number") currentTime = dd.currentTime;
         if (typeof dd.duration === "number") duration = dd.duration;
       }
-      // VidLink
       if (obj.type === "MEDIA_DATA" && obj.data && typeof obj.data === "object") {
         const entry = (obj.data as Record<string, unknown>)[String(target.id)] as
           | { progress?: { watched?: number; duration?: number } }
@@ -110,24 +120,82 @@ export function PlayerDialog({
 
   const isTv = target.mediaType === "tv";
   const supportsResume = sourceId === "videasy" || sourceId === "vidfast";
+  const activeSource = API_SOURCES.find((s) => s.id === sourceId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl p-0 bg-black border-border overflow-hidden">
-        <DialogTitle className="sr-only">Video player</DialogTitle>
+      <DialogContent
+        className="max-w-6xl p-0 bg-black border-0 overflow-hidden rounded-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)]"
+        showCloseButton={false}
+      >
+        <DialogTitle className="sr-only">{title ?? "Video player"}</DialogTitle>
         <DialogDescription className="sr-only">
           Streaming player. If a source is blocked, switch source or open in a new tab.
         </DialogDescription>
-        <div ref={wrapRef} className="relative aspect-video w-full bg-black">
+
+        {/* Stage */}
+        <div ref={wrapRef} className="relative aspect-video w-full bg-black group/stage">
+          {/* Cinematic loader */}
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10 pointer-events-none">
-              <Loader2 className="size-10 animate-spin text-white/80" />
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-black via-black/95 to-black pointer-events-none">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute size-20 rounded-full border border-white/10 animate-ping" />
+                <div className="absolute size-14 rounded-full border border-primary/40 animate-pulse" />
+                <div className="size-12 rounded-full bg-primary/90 flex items-center justify-center shadow-[0_0_40px_rgba(229,9,20,0.55)]">
+                  <Play className="size-5 text-white fill-white ml-0.5" />
+                </div>
+              </div>
+              <div className="mt-6 text-[11px] uppercase tracking-[0.3em] text-white/60">
+                Preparing stream
+              </div>
+              {title && (
+                <div className="mt-2 text-sm text-white/80 max-w-md text-center px-6 truncate">
+                  {title}
+                  {isTv && target.season && target.episode && (
+                    <span className="text-white/50"> · S{target.season}·E{target.episode}</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
+
+          {/* Top gradient + title overlay */}
+          <div
+            className={cn(
+              "absolute top-0 inset-x-0 z-10 px-4 sm:px-6 py-3 sm:py-4 flex items-start justify-between gap-3",
+              "bg-gradient-to-b from-black/80 via-black/40 to-transparent",
+              "opacity-0 group-hover/stage:opacity-100 focus-within:opacity-100 transition-opacity duration-300",
+              loading && "opacity-100",
+            )}
+          >
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.25em] text-white/60">
+                Now playing
+              </div>
+              {title && (
+                <div className="text-sm sm:text-base font-semibold text-white truncate max-w-[60vw] sm:max-w-md">
+                  {title}
+                  {isTv && target.season && target.episode && (
+                    <span className="text-white/60 font-normal">
+                      {" "}· S{target.season} · E{target.episode}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="rounded-full bg-black/50 backdrop-blur-md p-2 text-white/80 hover:text-white hover:bg-black/70 transition-colors ring-1 ring-white/10"
+              aria-label="Close player"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+
           <iframe
             key={url}
             src={url}
-            title="Player"
+            title={title ?? "Player"}
             referrerPolicy="origin"
             onLoad={() => setLoading(false)}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
@@ -135,74 +203,113 @@ export function PlayerDialog({
             className="size-full border-0"
           />
         </div>
-        <div className="p-4 flex flex-col gap-3 bg-card">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>
-                Source:{" "}
-                <span className="text-foreground font-medium">
-                  {API_SOURCES.find((s) => s.id === sourceId)?.name}
-                </span>
-              </span>
-              {isTv && target.season && target.episode && (
-                <span className="text-foreground/80">
-                  · S{target.season} · E{target.episode}
-                </span>
-              )}
+
+        {/* Control bar */}
+        <div className="relative bg-gradient-to-b from-zinc-950 to-black border-t border-white/5">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3">
+            {/* Left: source + status */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/5 ring-1 ring-white/10">
+                <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+                <span className="text-[11px] uppercase tracking-wider text-white/60">Live</span>
+                <span className="text-xs text-white font-medium">{activeSource?.name}</span>
+              </div>
               {resumeProgress && resumeProgress > 5 && (
-                <span className="text-primary">
-                  · Resume {fmtTime(resumeProgress)}
-                  {!supportsResume && " (manual seek)"}
+                <span className="text-xs text-primary/90 hidden sm:inline">
+                  Resume {fmtTime(resumeProgress)}
+                  {!supportsResume && " · seek manually"}
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
+
+            {/* Right: actions */}
+            <div className="flex flex-wrap items-center gap-1.5">
               {isTv && onPrev && (
-                <Button size="sm" variant="secondary" onClick={onPrev}>
-                  <SkipBack className="size-4" /> Prev ep
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={onPrev}
+                  className="text-white/80 hover:text-white hover:bg-white/10"
+                >
+                  <SkipBack className="size-4" /> Prev
                 </Button>
               )}
               {isTv && onNext && (
-                <Button size="sm" variant="secondary" onClick={onNext}>
-                  <SkipForward className="size-4" /> Next ep
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={onNext}
+                  className="text-white/80 hover:text-white hover:bg-white/10"
+                >
+                  <SkipForward className="size-4" /> Next
                 </Button>
               )}
-              <Button size="sm" variant="secondary" onClick={goFullscreen}>
-                <Maximize2 className="size-4" /> Fullscreen
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setSourcesOpen((v) => !v)}
+                className="text-white/80 hover:text-white hover:bg-white/10"
+              >
+                <Settings2 className="size-4" /> Sources
               </Button>
-              <Button asChild size="sm" variant="default">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={goFullscreen}
+                className="text-white/80 hover:text-white hover:bg-white/10"
+              >
+                <Maximize2 className="size-4" />
+                <span className="hidden sm:inline">Fullscreen</span>
+              </Button>
+              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-white">
                 <a href={url} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="size-4" /> Open in new tab
+                  <ExternalLink className="size-4" />
+                  <span className="hidden sm:inline">New tab</span>
                 </a>
-              </Button>
-              <Button size="sm" variant="secondary" onClick={() => setSourcesOpen((v) => !v)}>
-                {sourcesOpen ? "Hide sources" : "Change source"}
               </Button>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Resume position works best on <strong>Videasy</strong> and <strong>VidFast</strong>.
-            If a player asks to disable sandbox or shows nothing, switch source or use{" "}
-            <strong>Open in new tab</strong>.
-          </p>
+
+          {/* Sources panel */}
           {sourcesOpen && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {API_SOURCES.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => {
-                    setSourceId(s.id);
-                    setSourcesOpen(false);
-                  }}
-                  className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                    s.id === sourceId
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary hover:bg-secondary/70 text-foreground"
-                  }`}
-                >
-                  {s.name}
-                </button>
-              ))}
+            <div className="px-4 sm:px-6 pb-4 animate-fade-in">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">
+                Choose a streaming source
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {API_SOURCES.map((s) => {
+                  const active = s.id === sourceId;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        setSourceId(s.id);
+                        setSourcesOpen(false);
+                      }}
+                      className={cn(
+                        "group/source relative text-left px-3 py-2.5 rounded-lg text-sm transition-all ring-1",
+                        active
+                          ? "bg-primary/15 ring-primary/50 text-white"
+                          : "bg-white/[0.03] ring-white/10 text-white/80 hover:bg-white/[0.07] hover:ring-white/20",
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium truncate">{s.name}</span>
+                        {active && <Check className="size-4 text-primary shrink-0" />}
+                      </div>
+                      {(s.id === "videasy" || s.id === "vidfast") && (
+                        <div className="text-[10px] text-emerald-400/80 mt-0.5">
+                          Resume supported
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-white/40 mt-3 leading-relaxed">
+                If a source shows a blank screen or sandbox warning, switch source or open in a
+                new tab.
+              </p>
             </div>
           )}
         </div>
