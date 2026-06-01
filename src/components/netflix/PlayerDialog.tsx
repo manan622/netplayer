@@ -125,8 +125,7 @@ export function PlayerDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-6xl p-0 bg-black border-0 overflow-hidden rounded-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)]"
-        showCloseButton={false}
+        className="max-w-6xl p-0 bg-black border-0 overflow-hidden rounded-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)] [&>button.absolute]:hidden"
       >
         <DialogTitle className="sr-only">{title ?? "Video player"}</DialogTitle>
         <DialogDescription className="sr-only">
