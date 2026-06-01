@@ -231,6 +231,7 @@ function DetailPage() {
         open={playOpen}
         onOpenChange={setPlayOpen}
         target={target}
+        title={data?.title || data?.name}
         resumeProgress={resumeProgress}
         onPrev={canPrev ? playPrev : undefined}
         onNext={canNext ? playNext : undefined}
