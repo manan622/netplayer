@@ -14,9 +14,9 @@ async function fetchNotifications(): Promise<TmdbItem[]> {
   ]);
   // Tag each so users know why they appear
   const tagged = [
-    ...upcoming.slice(0, 6).map((i) => ({ ...i, _tag: "New Release" as const })),
-    ...onAir.slice(0, 6).map((i) => ({ ...i, _tag: "New Series" as const })),
-    ...nowPlaying.slice(0, 4).map((i) => ({ ...i, _tag: "Now Playing" as const })),
+    ...upcoming.results.slice(0, 6).map((i) => ({ ...i, _tag: "New Release" as const })),
+    ...onAir.results.slice(0, 6).map((i) => ({ ...i, _tag: "New Series" as const })),
+    ...nowPlaying.results.slice(0, 4).map((i) => ({ ...i, _tag: "Now Playing" as const })),
   ];
   return tagged;
 }

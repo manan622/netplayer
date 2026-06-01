@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -81,6 +82,7 @@ function SearchPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {data.map((item) => {
                 const img = tmdbImage(item.poster_path, "w500");
+                const label = item.mediaType === "movie" ? "Movie" : "Series";
                 return (
                   <Link
                     key={`${item.mediaType}-${item.id}`}
@@ -95,6 +97,9 @@ function SearchPage() {
                         {getTitle(item)}
                       </div>
                     )}
+                    <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-sm">
+                      {label}
+                    </span>
                     <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/90 to-transparent">
                       <p className="text-sm font-semibold line-clamp-1">{getTitle(item)}</p>
                       <p className="text-xs text-foreground/70">

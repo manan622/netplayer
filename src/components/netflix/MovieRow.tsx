@@ -131,6 +131,7 @@ export function MovieRow({
 function MovieCard({ item }: { item: TmdbItem }) {
   const img = tmdbImage(item.poster_path, "w500");
   const mediaType = item.mediaType ?? "movie";
+  const label = mediaType === "movie" ? "Movie" : "Series";
   return (
     <Link to="/$mediaType/$id" params={{ mediaType, id: String(item.id) }}
       className="relative shrink-0 w-[140px] md:w-[200px] aspect-[2/3] rounded-md overflow-hidden bg-card transition-transform duration-300 hover:scale-105 hover:z-10 cursor-pointer">
@@ -141,6 +142,9 @@ function MovieCard({ item }: { item: TmdbItem }) {
           {getTitle(item)}
         </div>
       )}
+      <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-sm">
+        {label}
+      </span>
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-end p-3">
         <div>
           <p className="text-sm font-semibold line-clamp-2">{getTitle(item)}</p>
