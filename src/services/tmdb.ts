@@ -144,19 +144,94 @@ export interface ApiSource {
   id: string;
   name: string;
   url: string;
+  /** URL templates using {id} {s} {e} — when present they take priority */
+  movie?: string;
+  tv?: string;
 }
 
 export const API_SOURCES: ApiSource[] = [
-  { id: "tmdb", name: "MoviesAPI (Default)", url: "https://moviesapi.club" },
-  { id: "netflix", name: "AutoEmbed", url: "https://player.autoembed.cc/embed" },
-  { id: "hulu", name: "VidSrc", url: "https://vidsrc.cc/v2/embed" },
+  { id: "videasy", name: "Videasy", url: "https://player.videasy.net" },
+  { id: "vidfast", name: "VidFast", url: "https://vidfast.pro" },
   { id: "prime", name: "VidLink", url: "https://vidlink.pro" },
+  { id: "tmdb", name: "MoviesAPI", url: "https://moviesapi.club" },
+  { id: "netflix", name: "AutoEmbed", url: "https://player.autoembed.cc/embed" },
+  { id: "hulu", name: "VidSrc.cc", url: "https://vidsrc.cc/v2/embed" },
   { id: "Hotstar", name: "Embed.su", url: "https://embed.su/embed" },
   { id: "multiembed", name: "MultiEmbed", url: "https://multiembed.mov" },
   { id: "2embed", name: "2Embed", url: "https://2embed.cc/embed" },
-  { id: "videasy", name: "Videasy", url: "https://player.videasy.net" },
-  { id: "vidfast", name: "VidFast", url: "https://vidfast.pro" },
+  // ==== newer / widely-used providers ====
+  {
+    id: "vidsrcxyz",
+    name: "VidSrc.xyz",
+    url: "https://vidsrc.xyz",
+    movie: "https://vidsrc.xyz/embed/movie?tmdb={id}",
+    tv: "https://vidsrc.xyz/embed/tv?tmdb={id}&season={s}&episode={e}",
+  },
+  {
+    id: "vidsrcto",
+    name: "VidSrc.to",
+    url: "https://vidsrc.to",
+    movie: "https://vidsrc.to/embed/movie/{id}",
+    tv: "https://vidsrc.to/embed/tv/{id}/{s}/{e}",
+  },
+  {
+    id: "vidsrcsu",
+    name: "VidSrc.su",
+    url: "https://vidsrc.su",
+    movie: "https://vidsrc.su/embed/movie/{id}",
+    tv: "https://vidsrc.su/embed/tv/{id}/{s}/{e}",
+  },
+  {
+    id: "vidcore",
+    name: "VidCore",
+    url: "https://www.vidcore.org",
+    movie: "https://www.vidcore.org/embed/movie/{id}",
+    tv: "https://www.vidcore.org/embed/tv/{id}/{s}/{e}",
+  },
+  {
+    id: "ezvid",
+    name: "EzVidAPI",
+    url: "https://ezvidapi.com",
+    movie: "https://ezvidapi.com/embed/movie/{id}",
+    tv: "https://ezvidapi.com/embed/tv/{id}/{s}/{e}",
+  },
+  {
+    id: "vidjoy",
+    name: "VidJoy",
+    url: "https://vidjoy.pro",
+    movie: "https://vidjoy.pro/embed/movie/{id}",
+    tv: "https://vidjoy.pro/embed/tv/{id}/{s}/{e}",
+  },
+  {
+    id: "2embedskin",
+    name: "2Embed.skin",
+    url: "https://www.2embed.skin",
+    movie: "https://www.2embed.skin/embed/{id}",
+    tv: "https://www.2embed.skin/embedtv/{id}&s={s}&e={e}",
+  },
+  {
+    id: "111movies",
+    name: "111Movies",
+    url: "https://111movies.com",
+    movie: "https://111movies.com/movie/{id}",
+    tv: "https://111movies.com/tv/{id}/{s}/{e}",
+  },
+  {
+    id: "spencerdevs",
+    name: "SpencerDevs",
+    url: "https://spencerdevs.xyz",
+    movie: "https://spencerdevs.xyz/movie/{id}",
+    tv: "https://spencerdevs.xyz/tv/{id}/{s}/{e}",
+  },
+  {
+    id: "rivestream",
+    name: "RiveStream",
+    url: "https://rivestream.org",
+    movie: "https://rivestream.org/embed?type=movie&id={id}",
+    tv: "https://rivestream.org/embed?type=tv&id={id}&season={s}&episode={e}",
+  },
 ];
+
 
 export interface PlayTarget {
   id: number;
@@ -167,7 +242,15 @@ export interface PlayTarget {
 
 export function getVideoUrl(t: PlayTarget, sourceId: string, progress?: number): string {
   const api = API_SOURCES.find((s) => s.id === sourceId) ?? API_SOURCES[0];
+  const tpl = t.mediaType === "tv" ? api.tv : api.movie;
+  if (tpl) {
+    return tpl
+      .replace("{id}", String(t.id))
+      .replace("{s}", String(t.season ?? 1))
+      .replace("{e}", String(t.episode ?? 1));
+  }
   if (t.mediaType === "tv") {
+
     const s = t.season ?? 1;
     const e = t.episode ?? 1;
     if (sourceId === "hulu" || sourceId === "prime" || sourceId === "Hotstar") {
