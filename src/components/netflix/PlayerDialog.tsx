@@ -64,7 +64,25 @@ export function PlayerDialog({
   const [favSource, setFavSource] = useState<string | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [manualPick, setManualPick] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const { health, checking, recheck, markDown } = useSourceHealth(target, open);
+
+  // Auto-fall back to a reachable source when the current one is down
+  useEffect(() => {
+    if (!open || manualPick) return;
+    if (health[sourceId]?.status !== "down") return;
+    const working = sortSourcesByHealth(API_SOURCES, health, favSource).find(
+      (s) => health[s.id]?.status === "up",
+    );
+    if (working && working.id !== sourceId) setSourceId(working.id);
+  }, [open, health, sourceId, manualPick, favSource]);
+
+  // reset manual override when the target changes
+  useEffect(() => {
+    setManualPick(false);
+  }, [target?.id, target?.season, target?.episode]);
+
 
   // load favourite source on mount
   useEffect(() => {
