@@ -306,6 +306,19 @@ export function PlayerDialog({
               <Button
                 size="sm"
                 variant="ghost"
+                onClick={() => {
+                  markDown(sourceId);
+                  setManualPick(false);
+                }}
+                className="text-white/80 hover:text-white hover:bg-white/10"
+                title="Mark this source as not working and switch"
+              >
+                <ThumbsDown className="size-4" />
+                <span className="hidden sm:inline">Not working</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={() => setSourcesOpen((v) => !v)}
                 className="text-white/80 hover:text-white hover:bg-white/10"
               >
@@ -332,17 +345,32 @@ export function PlayerDialog({
           {/* Sources panel */}
           {sourcesOpen && (
             <div className="px-4 sm:px-6 pb-4 animate-fade-in">
-              <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">
-                Choose a streaming source · tap ★ to set your favourite
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+                  Working sources first · tap ★ to pin your favourite
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={recheck}
+                  disabled={checking}
+                  className="h-7 text-[11px] text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  {checking ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="size-3.5" />
+                  )}
+                  {checking ? "Testing…" : "Re-test"}
+                </Button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                {[...API_SOURCES]
-                  .sort((a, b) =>
-                    a.id === favSource ? -1 : b.id === favSource ? 1 : 0,
-                  )
-                  .map((s) => {
+                {sortSourcesByHealth(API_SOURCES, health, favSource).map((src) => {
+                  const s = src as (typeof API_SOURCES)[number];
                   const active = s.id === sourceId;
                   const fav = s.id === favSource;
+                  const st = health[s.id]?.status ?? "unknown";
+                  const ms = health[s.id]?.ms;
                   return (
                     <div
                       key={s.id}
@@ -351,26 +379,45 @@ export function PlayerDialog({
                         active
                           ? "bg-primary/15 ring-primary/50 text-white"
                           : "bg-white/[0.03] ring-white/10 text-white/80 hover:bg-white/[0.07] hover:ring-white/20",
+                        st === "down" && !active && "opacity-55",
                       )}
                     >
                       <button
                         onClick={() => {
                           setSourceId(s.id);
+                          setManualPick(true);
                           setSourcesOpen(false);
                         }}
                         className="w-full text-left px-3 py-2.5 pr-9"
                       >
                         <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "size-1.5 rounded-full shrink-0",
+                              st === "up" && "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]",
+                              st === "down" && "bg-red-500",
+                              (st === "checking" || st === "unknown") &&
+                                "bg-white/40 animate-pulse",
+                            )}
+                          />
                           <span className="font-medium truncate">{s.name}</span>
                           {active && <Check className="size-4 text-primary shrink-0" />}
                         </div>
+                        <div className="text-[10px] mt-0.5">
+                          {st === "checking" && <span className="text-white/40">Testing…</span>}
+                          {st === "up" && (
+                            <span className="text-emerald-400/80">
+                              Working{ms ? ` · ${ms}ms` : ""}
+                            </span>
+                          )}
+                          {st === "down" && <span className="text-red-400/80">Not responding</span>}
+                          {st === "unknown" && <span className="text-white/30">Untested</span>}
+                        </div>
                         {(s.id === "videasy" || s.id === "vidfast") && (
-                          <div className="text-[10px] text-emerald-400/80 mt-0.5">
-                            Resume supported
-                          </div>
+                          <div className="text-[10px] text-emerald-400/60">Resume supported</div>
                         )}
                         {fav && (
-                          <div className="text-[10px] text-amber-400/90 mt-0.5">Favourite</div>
+                          <div className="text-[10px] text-amber-400/90">Favourite</div>
                         )}
                       </button>
                       <button
@@ -388,15 +435,16 @@ export function PlayerDialog({
                       </button>
                     </div>
                   );
-
                 })}
               </div>
               <p className="text-[11px] text-white/40 mt-3 leading-relaxed">
-                If a source shows a blank screen or sandbox warning, switch source or open in a
-                new tab.
+                Availability is tested live per title — sources that refuse to connect drop to the
+                bottom. If a working source still shows a blank screen, hit “Not working” and we'll
+                switch you to the next one.
               </p>
             </div>
           )}
+
         </div>
       </DialogContent>
     </Dialog>
