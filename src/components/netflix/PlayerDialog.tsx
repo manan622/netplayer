@@ -9,16 +9,21 @@ import {
   X,
   Play,
   Star,
+  RefreshCw,
+  ThumbsDown,
+  Loader2,
 
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { API_SOURCES, getVideoUrl, type PlayTarget } from "@/services/tmdb";
 import { updateContinueProgress } from "@/lib/library";
+import { useSourceHealth, sortSourcesByHealth } from "@/lib/source-health";
 import { cn } from "@/lib/utils";
 
 const FAV_SOURCE_KEY = "netflix.favsource.v1";
 const DEFAULT_SOURCE = "videasy";
+
 
 const readFavSource = (): string | null => {
   try {
