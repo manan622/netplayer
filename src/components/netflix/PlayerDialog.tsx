@@ -308,36 +308,62 @@ export function PlayerDialog({
           {sourcesOpen && (
             <div className="px-4 sm:px-6 pb-4 animate-fade-in">
               <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">
-                Choose a streaming source
+                Choose a streaming source · tap ★ to set your favourite
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                {API_SOURCES.map((s) => {
+                {[...API_SOURCES]
+                  .sort((a, b) =>
+                    a.id === favSource ? -1 : b.id === favSource ? 1 : 0,
+                  )
+                  .map((s) => {
                   const active = s.id === sourceId;
+                  const fav = s.id === favSource;
                   return (
-                    <button
+                    <div
                       key={s.id}
-                      onClick={() => {
-                        setSourceId(s.id);
-                        setSourcesOpen(false);
-                      }}
                       className={cn(
-                        "group/source relative text-left px-3 py-2.5 rounded-lg text-sm transition-all ring-1",
+                        "group/source relative rounded-lg text-sm transition-all ring-1",
                         active
                           ? "bg-primary/15 ring-primary/50 text-white"
                           : "bg-white/[0.03] ring-white/10 text-white/80 hover:bg-white/[0.07] hover:ring-white/20",
                       )}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-medium truncate">{s.name}</span>
-                        {active && <Check className="size-4 text-primary shrink-0" />}
-                      </div>
-                      {(s.id === "videasy" || s.id === "vidfast") && (
-                        <div className="text-[10px] text-emerald-400/80 mt-0.5">
-                          Resume supported
+                      <button
+                        onClick={() => {
+                          setSourceId(s.id);
+                          setSourcesOpen(false);
+                        }}
+                        className="w-full text-left px-3 py-2.5 pr-9"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium truncate">{s.name}</span>
+                          {active && <Check className="size-4 text-primary shrink-0" />}
                         </div>
-                      )}
-                    </button>
+                        {(s.id === "videasy" || s.id === "vidfast") && (
+                          <div className="text-[10px] text-emerald-400/80 mt-0.5">
+                            Resume supported
+                          </div>
+                        )}
+                        {fav && (
+                          <div className="text-[10px] text-amber-400/90 mt-0.5">Favourite</div>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => toggleFav(s.id)}
+                        aria-label={fav ? `Unfavourite ${s.name}` : `Favourite ${s.name}`}
+                        aria-pressed={fav}
+                        className="absolute top-2 right-2 p-1 rounded-md hover:bg-white/10 transition-colors"
+                      >
+                        <Star
+                          className={cn(
+                            "size-4",
+                            fav ? "text-amber-400 fill-amber-400" : "text-white/35",
+                          )}
+                        />
+                      </button>
+                    </div>
                   );
+
                 })}
               </div>
               <p className="text-[11px] text-white/40 mt-3 leading-relaxed">
