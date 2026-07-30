@@ -15,6 +15,18 @@ import { API_SOURCES, getVideoUrl, type PlayTarget } from "@/services/tmdb";
 import { updateContinueProgress } from "@/lib/library";
 import { cn } from "@/lib/utils";
 
+const FAV_SOURCE_KEY = "netflix.favsource.v1";
+const DEFAULT_SOURCE = "videasy";
+
+const readFavSource = (): string | null => {
+  try {
+    const v = localStorage.getItem(FAV_SOURCE_KEY);
+    return v && API_SOURCES.some((s) => s.id === v) ? v : null;
+  } catch {
+    return null;
+  }
+};
+
 const fmtTime = (s: number) => {
   if (!s || s < 0) return "0:00";
   const h = Math.floor(s / 3600);
@@ -22,6 +34,7 @@ const fmtTime = (s: number) => {
   const ss = Math.floor(s % 60).toString().padStart(2, "0");
   return h ? `${h}:${m.toString().padStart(2, "0")}:${ss}` : `${m}:${ss}`;
 };
+
 
 export function PlayerDialog({
   open,
