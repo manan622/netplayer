@@ -40,10 +40,32 @@ export function PlayerDialog({
   onPrev?: () => void;
   onNext?: () => void;
 }) {
-  const [sourceId, setSourceId] = useState("videasy");
+  const [sourceId, setSourceId] = useState(DEFAULT_SOURCE);
+  const [favSource, setFavSource] = useState<string | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  // load favourite source on mount
+  useEffect(() => {
+    const f = readFavSource();
+    if (f) {
+      setFavSource(f);
+      setSourceId(f);
+    }
+  }, []);
+
+  const toggleFav = (id: string) => {
+    const next = favSource === id ? null : id;
+    setFavSource(next);
+    try {
+      if (next) localStorage.setItem(FAV_SOURCE_KEY, next);
+      else localStorage.removeItem(FAV_SOURCE_KEY);
+    } catch {
+      /* ignore */
+    }
+  };
+
 
   useEffect(() => {
     if (open) setLoading(true);
