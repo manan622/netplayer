@@ -242,7 +242,15 @@ export interface PlayTarget {
 
 export function getVideoUrl(t: PlayTarget, sourceId: string, progress?: number): string {
   const api = API_SOURCES.find((s) => s.id === sourceId) ?? API_SOURCES[0];
+  const tpl = t.mediaType === "tv" ? api.tv : api.movie;
+  if (tpl) {
+    return tpl
+      .replace("{id}", String(t.id))
+      .replace("{s}", String(t.season ?? 1))
+      .replace("{e}", String(t.episode ?? 1));
+  }
   if (t.mediaType === "tv") {
+
     const s = t.season ?? 1;
     const e = t.episode ?? 1;
     if (sourceId === "hulu" || sourceId === "prime" || sourceId === "Hotstar") {
