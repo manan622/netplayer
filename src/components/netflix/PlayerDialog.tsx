@@ -389,6 +389,16 @@ export function PlayerDialog({
               <Button
                 size="sm"
                 variant="ghost"
+                onClick={() => setExternalOpen((v) => !v)}
+                className="text-white/80 hover:text-white hover:bg-white/10"
+                title="Play in an external app like MX Player or VLC"
+              >
+                <Smartphone className="size-4" />
+                <span className="hidden sm:inline">External app</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={goFullscreen}
                 className="text-white/80 hover:text-white hover:bg-white/10"
               >
@@ -403,6 +413,64 @@ export function PlayerDialog({
               </Button>
             </div>
           </div>
+
+          {/* External player panel */}
+          {externalOpen && (
+            <div className="px-4 sm:px-6 pb-4 animate-fade-in">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+                  Open in external player
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(url);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 1500);
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 text-[11px] text-white/60 hover:text-white transition-colors"
+                >
+                  {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+                  {copied ? "Copied" : "Copy stream link"}
+                </button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                {playersForPlatform(platform).map((p) => {
+                  const native = p.platforms.includes(platform);
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => openInExternalPlayer(p, url, title)}
+                      className={cn(
+                        "flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left ring-1 transition-colors",
+                        native
+                          ? "bg-white/[0.06] ring-white/15 hover:bg-white/10"
+                          : "bg-white/[0.02] ring-white/5 hover:bg-white/[0.06] opacity-60",
+                      )}
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-xs font-medium text-white truncate">
+                          {p.name}
+                        </span>
+                        <span className="block text-[10px] text-white/40">{p.hint}</span>
+                      </span>
+                      <ExternalLink className="size-3.5 shrink-0 text-white/40" />
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[10px] leading-relaxed text-white/40">
+                Hands the current source link to the chosen app. Embed sources that wrap the video in
+                a web page may not play natively — copy the link and paste it into the app's
+                "network stream" option, or try another source.
+              </p>
+            </div>
+          )}
+
+
 
           {/* Sources panel */}
           {sourcesOpen && (
