@@ -14,7 +14,7 @@ export function EpisodeList({
 }: {
   showId: number;
   totalSeasons: number;
-  onPlay: (season: number, episode: number) => void;
+  onPlay: (season: number, episode: number, absoluteEpisode?: number) => void;
   initialSeason?: number;
   highlightEpisode?: number;
 }) {
