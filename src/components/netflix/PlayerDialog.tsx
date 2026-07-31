@@ -80,6 +80,10 @@ export function PlayerDialog({
   const [sourceId, setSourceId] = useState(DEFAULT_SOURCE);
   const [favSource, setFavSource] = useState<string | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [externalOpen, setExternalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [platform, setPlatform] = useState<ExternalPlayerPlatform>("desktop");
+  useEffect(() => setPlatform(detectPlatform()), []);
   const [loading, setLoading] = useState(true);
   const [manualPick, setManualPick] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
