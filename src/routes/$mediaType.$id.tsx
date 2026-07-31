@@ -70,8 +70,8 @@ function DetailPage() {
     setPlayOpen(true);
     recordContinue();
   };
-  const playEpisode = (season: number, episode: number) => {
-    setTarget({ id: showId, mediaType: "tv", season, episode });
+  const playEpisode = (season: number, episode: number, absoluteEpisode?: number) => {
+    setTarget({ id: showId, mediaType: "tv", season, episode, absoluteEpisode });
     setPlayOpen(true);
     recordContinue({ season, episode });
   };
@@ -84,15 +84,17 @@ function DetailPage() {
   });
   const epCount = currentSeasonQ.data?.episodes.length ?? 0;
   const totalSeasons = data?.number_of_seasons ?? 1;
+  const absOf = (relEp: number) => currentSeasonQ.data?.episodes[relEp - 1]?.episode_number;
 
   const playNext = () => {
     if (!target?.season || !target?.episode) return;
-    if (epCount && target.episode < epCount) playEpisode(target.season, target.episode + 1);
+    if (epCount && target.episode < epCount)
+      playEpisode(target.season, target.episode + 1, absOf(target.episode + 1));
     else if (target.season < totalSeasons) playEpisode(target.season + 1, 1);
   };
   const playPrev = () => {
     if (!target?.season || !target?.episode) return;
-    if (target.episode > 1) playEpisode(target.season, target.episode - 1);
+    if (target.episode > 1) playEpisode(target.season, target.episode - 1, absOf(target.episode - 1));
     else if (target.season > 1) playEpisode(target.season - 1, 1);
   };
   const canNext =
