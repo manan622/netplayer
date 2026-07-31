@@ -138,7 +138,12 @@ export function PlayerDialog({
   const absQ = useQuery({
     queryKey: ["absEpisode", target?.id, target?.season, target?.episode],
     queryFn: () => fetchAbsoluteEpisode(target!.id, target!.season ?? 1, target!.episode ?? 1),
-    enabled: !!target && target.mediaType === "tv" && absNum && (target.season ?? 1) > 1,
+    enabled:
+      !!target &&
+      target.mediaType === "tv" &&
+      absNum &&
+      !target.absoluteEpisode &&
+      (target.season ?? 1) > 1,
   });
 
 
