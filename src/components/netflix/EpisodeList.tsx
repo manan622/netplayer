@@ -57,13 +57,14 @@ export function EpisodeList({
           Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 w-full" />
           ))}
-        {data?.episodes.map((ep) => {
-          const isResume = highlightEpisode === ep.episode_number && season === (initialSeason ?? season);
+        {data?.episodes.map((ep, idx) => {
+          const relEp = idx + 1;
+          const isResume = highlightEpisode === relEp && season === (initialSeason ?? season);
           return (
             <button
               key={ep.id}
               ref={isResume ? highlightRef : undefined}
-              onClick={() => onPlay(season, ep.episode_number)}
+              onClick={() => onPlay(season, relEp, ep.episode_number)}
               className={cn(
                 "group flex gap-4 text-left p-2 rounded-md transition-colors",
                 isResume
