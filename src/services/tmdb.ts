@@ -121,6 +121,25 @@ export async function fetchSeason(showId: number, seasonNumber: number): Promise
   return j(`${TMDB_BASE_URL}/tv/${showId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}&language=en-US`);
 }
 
+/**
+ * Convert a season/episode pair to an absolute episode number
+ * (S2E1 of a 12-episode S1 becomes episode 13) — used by anime sources
+ * that index everything under season 1.
+ */
+export async function fetchAbsoluteEpisode(
+  showId: number,
+  season: number,
+  episode: number,
+): Promise<number> {
+  if (season <= 1) return episode;
+  const d = await j(`${TMDB_BASE_URL}/tv/${showId}?api_key=${TMDB_API_KEY}&language=en-US`);
+  const seasons = (d.seasons ?? []) as { season_number: number; episode_count: number }[];
+  const prior = seasons
+    .filter((s) => s.season_number > 0 && s.season_number < season)
+    .reduce((a, s) => a + (s.episode_count || 0), 0);
+  return prior + episode;
+}
+
 export async function fetchRecommendations(mediaType: MediaType, id: number): Promise<TmdbItem[]> {
   const data = await j(
     `${TMDB_BASE_URL}/${mediaType}/${id}/recommendations?api_key=${TMDB_API_KEY}&language=en-US&page=1`,

@@ -16,12 +16,14 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { API_SOURCES, getVideoUrl, type PlayTarget } from "@/services/tmdb";
+import { useQuery } from "@tanstack/react-query";
+import { API_SOURCES, getVideoUrl, fetchAbsoluteEpisode, type PlayTarget } from "@/services/tmdb";
 import { updateContinueProgress } from "@/lib/library";
 import { useSourceHealth, sortSourcesByHealth } from "@/lib/source-health";
 import { cn } from "@/lib/utils";
 
 const FAV_SOURCE_KEY = "netflix.favsource.v1";
+const ABS_NUM_KEY = "netflix.absnum.v1";
 const DEFAULT_SOURCE = "videasy";
 
 
@@ -31,6 +33,14 @@ const readFavSource = (): string | null => {
     return v && API_SOURCES.some((s) => s.id === v) ? v : null;
   } catch {
     return null;
+  }
+};
+
+const readAbsMap = (): Record<string, boolean> => {
+  try {
+    return JSON.parse(localStorage.getItem(ABS_NUM_KEY) || "{}") as Record<string, boolean>;
+  } catch {
+    return {};
   }
 };
 
@@ -104,6 +114,34 @@ export function PlayerDialog({
     }
   };
 
+  // ==== Absolute episode numbering (anime) ====
+  const [absNum, setAbsNum] = useState(false);
+  useEffect(() => {
+    if (!target || target.mediaType !== "tv") return;
+    setAbsNum(!!readAbsMap()[String(target.id)]);
+  }, [target?.id, target?.mediaType]);
+
+  const toggleAbsNum = () => {
+    if (!target) return;
+    const next = !absNum;
+    setAbsNum(next);
+    try {
+      const map = readAbsMap();
+      if (next) map[String(target.id)] = true;
+      else delete map[String(target.id)];
+      localStorage.setItem(ABS_NUM_KEY, JSON.stringify(map));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const absQ = useQuery({
+    queryKey: ["absEpisode", target?.id, target?.season, target?.episode],
+    queryFn: () => fetchAbsoluteEpisode(target!.id, target!.season ?? 1, target!.episode ?? 1),
+    enabled: !!target && target.mediaType === "tv" && absNum && (target.season ?? 1) > 1,
+  });
+
+
 
   useEffect(() => {
     if (open) setLoading(true);
@@ -169,7 +207,16 @@ export function PlayerDialog({
   }, [open, target?.id, target?.season, target?.episode, target?.mediaType]);
 
   if (!target) return null;
-  const url = getVideoUrl(target, sourceId, resumeProgress);
+  const absEpisode = absNum
+    ? (target.season ?? 1) > 1
+      ? absQ.data
+      : (target.episode ?? 1)
+    : undefined;
+  const playTarget: PlayTarget =
+    target.mediaType === "tv" && absNum && absEpisode
+      ? { ...target, season: 1, episode: absEpisode }
+      : target;
+  const url = getVideoUrl(playTarget, sourceId, resumeProgress);
 
   const goFullscreen = () => {
     const el = wrapRef.current;
@@ -364,6 +411,44 @@ export function PlayerDialog({
                   {checking ? "Testing…" : "Re-test"}
                 </Button>
               </div>
+
+              {isTv && (
+                <div className="mb-3 flex items-start justify-between gap-3 rounded-lg bg-white/[0.03] ring-1 ring-white/10 px-3 py-2.5">
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium text-white/90">
+                      Absolute episode numbering
+                    </div>
+                    <div className="text-[10px] text-white/45 mt-0.5 leading-relaxed">
+                      For anime indexed as one long season (e.g. E1000 instead of S5·E12).
+                      {absNum && (
+                        <span className="text-amber-400/90">
+                          {" "}
+                          Requesting E
+                          {absQ.isLoading && (target.season ?? 1) > 1 ? "…" : (absEpisode ?? target.episode ?? 1)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={toggleAbsNum}
+                    role="switch"
+                    aria-checked={absNum}
+                    aria-label="Toggle absolute episode numbering"
+                    className={cn(
+                      "shrink-0 mt-0.5 h-6 w-11 rounded-full transition-colors ring-1",
+                      absNum ? "bg-primary ring-primary/60" : "bg-white/10 ring-white/15",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "block size-5 rounded-full bg-white shadow transition-transform",
+                        absNum ? "translate-x-[22px]" : "translate-x-0.5",
+                      )}
+                    />
+                  </button>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {sortSourcesByHealth(API_SOURCES, health, favSource).map((src) => {
                   const s = src as (typeof API_SOURCES)[number];
