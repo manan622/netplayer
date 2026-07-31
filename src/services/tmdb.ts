@@ -255,8 +255,11 @@ export const API_SOURCES: ApiSource[] = [
 export interface PlayTarget {
   id: number;
   mediaType: MediaType;
+  /** Episode number within the season (1-based), used by normal sources */
   season?: number;
   episode?: number;
+  /** TMDB's raw episode number, which for long-running anime is absolute (e.g. 1211) */
+  absoluteEpisode?: number;
 }
 
 export function getVideoUrl(t: PlayTarget, sourceId: string, progress?: number): string {
