@@ -207,7 +207,16 @@ export function PlayerDialog({
   }, [open, target?.id, target?.season, target?.episode, target?.mediaType]);
 
   if (!target) return null;
-  const url = getVideoUrl(target, sourceId, resumeProgress);
+  const absEpisode = absNum
+    ? (target.season ?? 1) > 1
+      ? absQ.data
+      : (target.episode ?? 1)
+    : undefined;
+  const playTarget: PlayTarget =
+    target.mediaType === "tv" && absNum && absEpisode
+      ? { ...target, season: 1, episode: absEpisode }
+      : target;
+  const url = getVideoUrl(playTarget, sourceId, resumeProgress);
 
   const goFullscreen = () => {
     const el = wrapRef.current;
