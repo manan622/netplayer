@@ -114,6 +114,34 @@ export function PlayerDialog({
     }
   };
 
+  // ==== Absolute episode numbering (anime) ====
+  const [absNum, setAbsNum] = useState(false);
+  useEffect(() => {
+    if (!target || target.mediaType !== "tv") return;
+    setAbsNum(!!readAbsMap()[String(target.id)]);
+  }, [target?.id, target?.mediaType]);
+
+  const toggleAbsNum = () => {
+    if (!target) return;
+    const next = !absNum;
+    setAbsNum(next);
+    try {
+      const map = readAbsMap();
+      if (next) map[String(target.id)] = true;
+      else delete map[String(target.id)];
+      localStorage.setItem(ABS_NUM_KEY, JSON.stringify(map));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const absQ = useQuery({
+    queryKey: ["absEpisode", target?.id, target?.season, target?.episode],
+    queryFn: () => fetchAbsoluteEpisode(target!.id, target!.season ?? 1, target!.episode ?? 1),
+    enabled: !!target && target.mediaType === "tv" && absNum && (target.season ?? 1) > 1,
+  });
+
+
 
   useEffect(() => {
     if (open) setLoading(true);
