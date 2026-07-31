@@ -411,6 +411,44 @@ export function PlayerDialog({
                   {checking ? "Testing…" : "Re-test"}
                 </Button>
               </div>
+
+              {isTv && (
+                <div className="mb-3 flex items-start justify-between gap-3 rounded-lg bg-white/[0.03] ring-1 ring-white/10 px-3 py-2.5">
+                  <div className="min-w-0">
+                    <div className="text-xs font-medium text-white/90">
+                      Absolute episode numbering
+                    </div>
+                    <div className="text-[10px] text-white/45 mt-0.5 leading-relaxed">
+                      For anime indexed as one long season (e.g. E1000 instead of S5·E12).
+                      {absNum && (
+                        <span className="text-amber-400/90">
+                          {" "}
+                          Requesting E
+                          {absQ.isLoading && (target.season ?? 1) > 1 ? "…" : (absEpisode ?? target.episode ?? 1)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={toggleAbsNum}
+                    role="switch"
+                    aria-checked={absNum}
+                    aria-label="Toggle absolute episode numbering"
+                    className={cn(
+                      "shrink-0 mt-0.5 h-6 w-11 rounded-full transition-colors ring-1",
+                      absNum ? "bg-primary ring-primary/60" : "bg-white/10 ring-white/15",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "block size-5 rounded-full bg-white shadow transition-transform",
+                        absNum ? "translate-x-[22px]" : "translate-x-0.5",
+                      )}
+                    />
+                  </button>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {sortSourcesByHealth(API_SOURCES, health, favSource).map((src) => {
                   const s = src as (typeof API_SOURCES)[number];
