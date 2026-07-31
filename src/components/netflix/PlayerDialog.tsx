@@ -213,9 +213,8 @@ export function PlayerDialog({
 
   if (!target) return null;
   const absEpisode = absNum
-    ? (target.season ?? 1) > 1
-      ? absQ.data
-      : (target.episode ?? 1)
+    ? (target.absoluteEpisode ??
+      ((target.season ?? 1) > 1 ? absQ.data : (target.episode ?? 1)))
     : undefined;
   const playTarget: PlayTarget =
     target.mediaType === "tv" && absNum && absEpisode
