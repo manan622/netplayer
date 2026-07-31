@@ -16,12 +16,14 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { API_SOURCES, getVideoUrl, type PlayTarget } from "@/services/tmdb";
+import { useQuery } from "@tanstack/react-query";
+import { API_SOURCES, getVideoUrl, fetchAbsoluteEpisode, type PlayTarget } from "@/services/tmdb";
 import { updateContinueProgress } from "@/lib/library";
 import { useSourceHealth, sortSourcesByHealth } from "@/lib/source-health";
 import { cn } from "@/lib/utils";
 
 const FAV_SOURCE_KEY = "netflix.favsource.v1";
+const ABS_NUM_KEY = "netflix.absnum.v1";
 const DEFAULT_SOURCE = "videasy";
 
 
@@ -31,6 +33,14 @@ const readFavSource = (): string | null => {
     return v && API_SOURCES.some((s) => s.id === v) ? v : null;
   } catch {
     return null;
+  }
+};
+
+const readAbsMap = (): Record<string, boolean> => {
+  try {
+    return JSON.parse(localStorage.getItem(ABS_NUM_KEY) || "{}") as Record<string, boolean>;
+  } catch {
+    return {};
   }
 };
 
