@@ -12,7 +12,8 @@ import {
   RefreshCw,
   ThumbsDown,
   Loader2,
-
+  Smartphone,
+  Copy,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,12 @@ import { useQuery } from "@tanstack/react-query";
 import { API_SOURCES, getVideoUrl, fetchAbsoluteEpisode, type PlayTarget } from "@/services/tmdb";
 import { updateContinueProgress } from "@/lib/library";
 import { useSourceHealth, sortSourcesByHealth } from "@/lib/source-health";
+import {
+  detectPlatform,
+  playersForPlatform,
+  openInExternalPlayer,
+  type ExternalPlayerPlatform,
+} from "@/lib/external-player";
 import { cn } from "@/lib/utils";
 
 const FAV_SOURCE_KEY = "netflix.favsource.v1";
