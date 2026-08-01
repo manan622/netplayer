@@ -434,7 +434,7 @@ export function PlayerDialog({
                 <button
                   onClick={async () => {
                     try {
-                      await navigator.clipboard.writeText(url);
+                      await navigator.clipboard.writeText(playUrl);
                       setCopied(true);
                       setTimeout(() => setCopied(false), 1500);
                     } catch {
