@@ -14,6 +14,7 @@ import {
   Loader2,
   Smartphone,
   Copy,
+  TriangleAlert,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,8 @@ import {
   detectPlatform,
   playersForPlatform,
   openInExternalPlayer,
+  isDirectStream,
+  openWithChooser,
   type ExternalPlayerPlatform,
 } from "@/lib/external-player";
 import { cn } from "@/lib/utils";
