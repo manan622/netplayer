@@ -237,6 +237,11 @@ export function PlayerDialog({
       ? { ...target, season: 1, episode: absEpisode }
       : target;
   const url = getVideoUrl(playTarget, sourceId, resumeProgress);
+  // What we hand to an external app: a user-supplied direct stream wins,
+  // otherwise the embed URL (which most apps can't decode).
+  const playUrl = manualUrl.trim() || url;
+  const directOk = isDirectStream(playUrl);
+
 
   const goFullscreen = () => {
     const el = wrapRef.current;
