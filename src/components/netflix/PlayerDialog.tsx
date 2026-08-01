@@ -85,6 +85,8 @@ export function PlayerDialog({
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [externalOpen, setExternalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [manualUrl, setManualUrl] = useState("");
+
   const [platform, setPlatform] = useState<ExternalPlayerPlatform>("desktop");
   useEffect(() => setPlatform(detectPlatform()), []);
   const [loading, setLoading] = useState(true);
