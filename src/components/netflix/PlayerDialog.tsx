@@ -440,18 +440,55 @@ export function PlayerDialog({
                   {copied ? "Copied" : "Copy stream link"}
                 </button>
               </div>
+              {!directOk && (
+                <div className="mb-3 flex gap-2.5 rounded-lg bg-amber-500/10 ring-1 ring-amber-400/25 px-3 py-2.5">
+                  <TriangleAlert className="size-4 shrink-0 text-amber-400 mt-0.5" />
+                  <div className="text-[11px] leading-relaxed text-amber-100/80">
+                    This source is a web player page, not a video file, so MX Player / VLC will
+                    reject it. Paste a direct <code className="text-amber-300">.m3u8</code> or{" "}
+                    <code className="text-amber-300">.mp4</code> link below to send it to an app, or
+                    keep watching in the built-in player.
+                  </div>
+                </div>
+              )}
+
+              <div className="mb-3 flex gap-2">
+                <input
+                  value={manualUrl}
+                  onChange={(e) => setManualUrl(e.target.value)}
+                  placeholder="Direct stream link (.m3u8 / .mp4)"
+                  className="min-w-0 flex-1 rounded-lg bg-white/[0.04] ring-1 ring-white/10 px-3 py-2 text-xs text-white placeholder:text-white/30 outline-none focus:ring-white/25"
+                />
+                {platform === "android" && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => openWithChooser(playUrl, title)}
+                    className="shrink-0 text-white/80 hover:text-white hover:bg-white/10"
+                  >
+                    Open with…
+                  </Button>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {playersForPlatform(platform).map((p) => {
                   const native = p.platforms.includes(platform);
+                  const playable = isDirectStream(playUrl);
                   return (
                     <button
                       key={p.id}
-                      onClick={() => openInExternalPlayer(p, url, title)}
+                      onClick={() => openInExternalPlayer(p, playUrl, title)}
+                      title={
+                        playable
+                          ? `Play in ${p.name}`
+                          : "No direct stream link yet — this may not open"
+                      }
                       className={cn(
                         "flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left ring-1 transition-colors",
-                        native
+                        native && playable
                           ? "bg-white/[0.06] ring-white/15 hover:bg-white/10"
-                          : "bg-white/[0.02] ring-white/5 hover:bg-white/[0.06] opacity-60",
+                          : "bg-white/[0.02] ring-white/5 hover:bg-white/[0.06] opacity-50",
                       )}
                     >
                       <span className="min-w-0">
@@ -466,10 +503,11 @@ export function PlayerDialog({
                 })}
               </div>
               <p className="mt-2 text-[10px] leading-relaxed text-white/40">
-                Hands the current source link to the chosen app. Embed sources that wrap the video in
-                a web page may not play natively — copy the link and paste it into the app's
-                "network stream" option, or try another source.
+                Every embed source resolves its video inside the page with tokens, so the link above
+                is HTML — external apps can't decode it. Grab the real stream link (long-press the
+                video → copy link, or your browser's network tab), paste it here, then pick an app.
               </p>
+
             </div>
           )}
 
