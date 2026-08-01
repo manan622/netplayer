@@ -106,3 +106,28 @@ export function openInExternalPlayer(player: ExternalPlayer, url: string, title?
   // Assigning location keeps the app page intact if the handler is missing.
   window.location.href = deep;
 }
+
+/**
+ * External apps (MX Player, VLC, Infuse…) can only play a *media* URL —
+ * .m3u8 / .mpd / .mp4 / .mkv or a magnet link. Every embed source we use
+ * returns an HTML web player that resolves the real stream in JavaScript,
+ * so handing that URL to MX Player yields "unsupported format" or a blank
+ * screen. Use this to gate the UI instead of failing silently.
+ */
+export function isDirectStream(url: string): boolean {
+  if (!url) return false;
+  if (url.startsWith("magnet:")) return true;
+  const path = url.split("?")[0].split("#")[0].toLowerCase();
+  return /\.(m3u8|mpd|mp4|mkv|webm|avi|mov|ts)$/.test(path);
+}
+
+/**
+ * Android-only: hand the link to the system chooser without forcing a
+ * package, so the user can pick a browser or any app that claims the URL.
+ */
+export function openWithChooser(url: string, title?: string) {
+  const stripped = url.replace(/^https?:\/\//, "");
+  const scheme = url.startsWith("https") ? "https" : "http";
+  const t = title ? `S.title=${encodeURIComponent(title)};` : "";
+  window.location.href = `intent://${stripped}#Intent;scheme=${scheme};${t}end`;
+}
